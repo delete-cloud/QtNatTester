@@ -1,0 +1,9 @@
+# ninja log v5
+11	226	1709626419416059000	QNatTester_autogen/timestamp	fc7028135fc84ce4
+11	226	1709626419416059000	/Users/kina/Code/C++/QNatTester/cmake-build-release/QNatTester_autogen/timestamp	fc7028135fc84ce4
+11	226	1709626419416059000	QNatTester_autogen/mocs_compilation.cpp	fc7028135fc84ce4
+11	226	1709626419416059000	/Users/kina/Code/C++/QNatTester/cmake-build-release/QNatTester_autogen/mocs_compilation.cpp	fc7028135fc84ce4
+1327	1366	1709626420563319128	QNatTester.app/Contents/MacOS/QNatTester	80081b14ee8e1e52
+330	869	1709626405690341326	CMakeFiles/QNatTester.dir/main.cpp.o	130359baed120bb
+226	908	1709626420101826254	CMakeFiles/QNatTester.dir/mainwindow.cpp.o	bf754dd831f6b39c
+226	1327	1709626420522084464	CMakeFiles/QNatTester.dir/QNatTester_autogen/mocs_compilation.cpp.o	d343953364f8ba89
