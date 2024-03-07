@@ -1,9 +1,0 @@
-/Users/kina/Code/C++/QNatTester/cmake-build-release/CMakeFiles/QNatTester.dir
-/Users/kina/Code/C++/QNatTester/cmake-build-release/CMakeFiles/edit_cache.dir
-/Users/kina/Code/C++/QNatTester/cmake-build-release/CMakeFiles/rebuild_cache.dir
-/Users/kina/Code/C++/QNatTester/cmake-build-release/CMakeFiles/list_install_components.dir
-/Users/kina/Code/C++/QNatTester/cmake-build-release/CMakeFiles/install.dir
-/Users/kina/Code/C++/QNatTester/cmake-build-release/CMakeFiles/install/local.dir
-/Users/kina/Code/C++/QNatTester/cmake-build-release/CMakeFiles/install/strip.dir
-/Users/kina/Code/C++/QNatTester/cmake-build-release/CMakeFiles/QNatTester_autogen_timestamp_deps.dir
-/Users/kina/Code/C++/QNatTester/cmake-build-release/CMakeFiles/QNatTester_autogen.dir
