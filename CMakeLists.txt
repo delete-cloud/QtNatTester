@@ -9,19 +9,39 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 包含 libjuice
-find_path(LIBJUICE_INCLUDE_DIR NAMES juice/juice.h)
-find_library(LIBJUICE_LIBRARY NAMES juice)
+find_package(PkgConfig REQUIRED)
+#find_package(PJSIP REQUIRED)
+
+
+# 使用 pkg-config 查找 pjproject
+pkg_check_modules(PJSIP REQUIRED libpjproject)
+
+# 包含 pjproject 头文件目录
+include_directories(${PJSIP_INCLUDE_DIRS})
+
+link_directories(${PJSIP_LIBRARY_DIRS})
+
+#link_libraries(${PJSIP_LIBRARIES})
+MESSAGE(STATUS "PJSIP_LIBRARIES: ${PJSIP_LIBRARIES}")
+
+
+## 包含 libnice
+#pkg_check_modules(NICE REQUIRED nice)
+#include_directories(${NICE_INCLUDE_DIRS})
+#link_directories(${NICE_LIBRARY_DIRS})
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
+        main.cc
+        mainwindow.cc
         mainwindow.h
         mainwindow.ui
-        nat_detect.hpp
+        nat_detect.h
+        nat_detect.cc
+        nat_detect_thread.cc
+        nat_detect_thread.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -49,8 +69,9 @@ endif()
 
 target_link_libraries(NatTypeTest PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${LIBJUICE_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBJUICE_LIBRARY})
+# pjproject
+target_link_libraries(NatTypeTest PRIVATE ${PJSIP_LIBRARIES})
+
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

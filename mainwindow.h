@@ -2,20 +2,39 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QLabel>
+#include <QComboBox>
+#include <QMap>
+#include "nat_detect_thread.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
-
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+class MainWindow : public QMainWindow {
+Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
+    void updateNatDetectionResults(const QString &natType, const QString &localAddress, const QString &publicAddress);
+
+signals:
+    void natDetectionResults(const QString &natType, const QString &localAddress, const QString &publicAddress);
+
+private slots:
+    void onGetButtonClicked();
 
 private:
-    Ui::MainWindow *ui;
+    QComboBox *serverComboBox;
+    QLineEdit *natTypeLineEdit;
+    QLineEdit *localEndPointLineEdit;
+    QLineEdit *publicEndPointLineEdit;
+    QPushButton *getButton;
+    QMap<QString, QString> serverPortMap;
+
+//    NatDetect *natDetect;
+//    NatDetectThread *natDetectThread;
+
+
+    void setupUi();
 };
+
 #endif // MAINWINDOW_H
