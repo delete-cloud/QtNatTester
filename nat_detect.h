@@ -6,8 +6,10 @@
 #include <pjlib.h>
 #include <pjlib-util.h>
 #include <pjnath.h>
+#include <pj/log.h>
 #include <iostream>
 
+static void customLogWriter(int level, const char *buffer, int len);
 
 class NatDetect : public QObject {
 Q_OBJECT
@@ -19,10 +21,12 @@ public:
     void startNatDetection();
     void stopNatDetection();
     void setServerAndPort(const QString &server, int port);
+    const QString& customLog(int level, const char *buffer, int len);
 
 signals:
     void natDetectionStarted();
     void natDetectionFinished(const QString &natType, const QString &localAddress, const QString &publicAddress);
+    void logReceived(const QString &logMessage);
 
 private:
     void onNatDetect(const QString& server, int port);

@@ -1,19 +1,34 @@
 #include "nat_detect.h"
 
+// 存放日志信息
+QString logMessage;
+
+static void customLogWriter(int level, const char *buffer, int len){
+    Q_UNUSED(level);
+    QString logMsg = QString::fromUtf8(buffer, len);
+    if(logMsg.contains("CHANGED-ADDRESS: length=8, IPv4 addr")){
+        logMessage.append(logMsg);
+        std::cout << logMessage.toStdString();
+    }
+}
+
 static void my_nat_detect_callback(void *user_data, const pj_stun_nat_detect_result *res) {
     NatDetect *detector = reinterpret_cast<NatDetect*>(user_data);
 
+    QString logMsg = logMessage;
     if (res->status == PJ_SUCCESS) {
         QString natType = pj_stun_get_nat_name(res->nat_type);
         QString localAddress; // 获取本地地址
         QString publicAddress; // 获取公网地址
+
+        std::cout << "logMsg:" << logMsg.toStdString();
 
         // 在主线程中发出信号
         QMetaObject::invokeMethod(detector, "natDetectionFinished",
                                   Qt::QueuedConnection,
                                   Q_ARG(QString, natType),
                                   Q_ARG(QString, localAddress),
-                                  Q_ARG(QString, publicAddress));
+                                  Q_ARG(QString, logMsg));
 
 //        std::cout << "NAT detection success. NAT type is " << pj_stun_get_nat_name(res->nat_type) << std::endl;
     } else {
@@ -35,6 +50,8 @@ NatDetect::NatDetect(QObject *parent)
     pjlib_util_init();
     pjnath_init();
 
+    pj_log_set_log_func(customLogWriter);
+
     pj_caching_pool_init(&cp, &pj_pool_factory_default_policy, 0);
     pool = pj_pool_create(&cp.factory, "nat_detect", 512, 512, NULL);
     pj_timer_heap_create(pool, 100, &timer_heap);
@@ -46,6 +63,7 @@ NatDetect::~NatDetect() {
     // 清理资源
     if (continue_polling) {
         stop_event_loop();
+        std::cout << "Event loop stopped" << std::endl;
     }
     pj_timer_heap_destroy(timer_heap);
     pj_ioqueue_destroy(ioqueue);
@@ -55,6 +73,7 @@ NatDetect::~NatDetect() {
 }
 
 void NatDetect::startNatDetection() {
+//    logMessage.clear();
     // 开始 NAT 检测逻辑和事件循环
     onNatDetect(server, port);
 }
@@ -65,9 +84,6 @@ void NatDetect::onNatDetect(const QString& server, int port) {
     char* serverStr = (char *)server.toStdString().c_str();
     pj_str_t stunServer = pj_str(serverStr); // 设置STUN服务器地址
     pj_sockaddr_in server_addr;
-
-    std::cout << "Server: " << server.toStdString() << std::endl;
-    std::cout << "Port: " << port << std::endl;
 
     // 分配用户数据
 //    my_user_data *data = (my_user_data *)pj_pool_alloc(pool, sizeof(my_user_data));
@@ -104,6 +120,10 @@ void NatDetect::start_event_loop() {
         pj_ioqueue_poll(ioqueue, &timeout);
         pj_timer_heap_poll(timer_heap, &timeout);
     }
+
+
+
+//    std::cout << logMessage.toStdString();
 }
 
 void NatDetect::stop_event_loop() {
@@ -118,4 +138,12 @@ void NatDetect::setServerAndPort(const QString &server, int port) {
     // 设置 STUN 服务器和端口
     this->server = server;
     this->port = port;
+}
+
+const QString& NatDetect::customLog(int level, const char *buffer, int len) {
+    Q_UNUSED(level);
+    // 将日志信息发送到GUI线程，你可能需要确保这里是线程安全的
+    // 例如，使用信号和槽机制
+    QString logMsg = QString::fromUtf8(buffer, len);
+    emit logReceived(logMsg);  // 假设这是一个自定义的信号
 }

@@ -8,6 +8,8 @@
 #include <QPushButton>
 #include <QMap>
 
+extern QString logMessage;
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     // 设置界面
@@ -32,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     natTypeLineEdit = new QLineEdit(this);
     natTypeLineEdit->setReadOnly(true);
+    logWidget = new QTextEdit(this);
+    logWidget->setReadOnly(true);
 
 //    localEndPointLineEdit = new QLineEdit(this);
 //    localEndPointLineEdit->setReadOnly(true);
@@ -40,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     formLayout->addRow(new QLabel("STUN服务器:"), serverComboBox);
     formLayout->addRow(new QLabel("NAT类型:"), natTypeLineEdit);
+    formLayout->addRow(new QLabel("日志:"), logWidget);
 //    formLayout->addRow(new QLabel("本地地址:"), localEndPointLineEdit);
 //    formLayout->addRow(new QLabel("公网地址:"), publicEndPointLineEdit);
 
@@ -88,6 +93,8 @@ void MainWindow::updateNatDetectionResults(const QString &natType, const QString
 
     // 更新界面上的 NAT 检测结果
     natTypeLineEdit->setText(natType);
+    logWidget->clear();
+    logWidget->append(publicAddress);
 //    localEndPointLineEdit->setText(localAddress);
 //    publicEndPointLineEdit->setText(publicAddress);
 }

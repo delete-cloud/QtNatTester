@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QMap>
+#include <QTextEdit>
 #include "nat_detect_thread.h"
 
 class MainWindow : public QMainWindow {
@@ -29,6 +30,7 @@ private:
     QLineEdit *publicEndPointLineEdit;
     QPushButton *getButton;
     QMap<QString, QString> serverPortMap;
+    QTextEdit *logWidget;
 
 //    NatDetect *natDetect;
 //    NatDetectThread *natDetectThread;
