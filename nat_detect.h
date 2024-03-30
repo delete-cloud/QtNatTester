@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QThread>
+#include <QtCore/qregularexpression.h>
 #include <pjlib.h>
 #include <pjlib-util.h>
 #include <pjnath.h>
@@ -10,6 +11,8 @@
 #include <iostream>
 
 static void customLogWriter(int level, const char *buffer, int len);
+static QString extractPubLicIpAddressAndPort(const QString &input);
+static QString extractLocalIpAddressAndPort(const QString &input);
 
 class NatDetect : public QObject {
 Q_OBJECT
@@ -21,11 +24,13 @@ public:
     void startNatDetection();
     void stopNatDetection();
     void setServerAndPort(const QString &server, int port);
-    const QString& customLog(int level, const char *buffer, int len);
+
+
+    [[maybe_unused]] const QString& customLog(int level, const char *buffer, int len);
 
 signals:
     void natDetectionStarted();
-    void natDetectionFinished(const QString &natType, const QString &localAddress, const QString &publicAddress);
+    void natDetectionFinished(const QString &natType, const QString &logMsg);
     void logReceived(const QString &logMessage);
 
 private:

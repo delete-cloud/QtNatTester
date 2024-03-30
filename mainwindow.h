@@ -15,7 +15,7 @@ Q_OBJECT
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    void updateNatDetectionResults(const QString &natType, const QString &localAddress, const QString &publicAddress);
+    void updateNatDetectionResults(const QString &natType, const QString &logMsg);
 
 signals:
     void natDetectionResults(const QString &natType, const QString &localAddress, const QString &publicAddress);

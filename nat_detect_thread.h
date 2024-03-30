@@ -13,7 +13,7 @@ public:
 
 signals:
     void startNatDetection();
-    void natDetectionFinished(const QString &natType, const QString &localAddress, const QString &publicAddress);
+    void natDetectionFinished(const QString &natType, const QString &logMsg);
 
 protected:
     void run() override;

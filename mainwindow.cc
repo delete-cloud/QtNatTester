@@ -9,6 +9,8 @@
 #include <QMap>
 
 extern QString logMessage;
+extern QString localEndPoint;
+extern QString publicEndPoint;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
@@ -20,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     QFormLayout *formLayout = new QFormLayout();
 
-    // STUN 服务器和端口的映射,目前只支持 UDP， IPV4的 STUN 服务器， 标准为RFC 3489
+    // STUN 服务器和端口的映射,目前只支持 UDP, IPV4的 STUN 服务器, 标准为RFC 3489
     serverPortMap["stun.miwifi.com"] = "3478";
     serverPortMap["stun.qq.com"] = "3478";
     serverPortMap["stun.syncthing.net"] = "3478";
@@ -37,29 +39,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     logWidget = new QTextEdit(this);
     logWidget->setReadOnly(true);
 
-//    localEndPointLineEdit = new QLineEdit(this);
-//    localEndPointLineEdit->setReadOnly(true);
-//    publicEndPointLineEdit = new QLineEdit(this);
-//    publicEndPointLineEdit->setReadOnly(true);
+    localEndPointLineEdit = new QLineEdit(this);
+    localEndPointLineEdit->setReadOnly(true);
+    publicEndPointLineEdit = new QLineEdit(this);
+    publicEndPointLineEdit->setReadOnly(true);
 
     formLayout->addRow(new QLabel("STUN服务器:"), serverComboBox);
     formLayout->addRow(new QLabel("NAT类型:"), natTypeLineEdit);
-    formLayout->addRow(new QLabel("日志:"), logWidget);
-//    formLayout->addRow(new QLabel("本地地址:"), localEndPointLineEdit);
-//    formLayout->addRow(new QLabel("公网地址:"), publicEndPointLineEdit);
+    formLayout->addRow(new QLabel("本地地址:"), localEndPointLineEdit);
+    formLayout->addRow(new QLabel("公网地址:"), publicEndPointLineEdit);
+    formLayout->addRow(new QLabel("检测日志:"), logWidget);
+
 
     getButton = new QPushButton("检测");
     connect(getButton, &QPushButton::clicked, this, &MainWindow::onGetButtonClicked);
 
     mainLayout->addLayout(formLayout);
     mainLayout->addWidget(getButton);
-
-////    QThread *thread = new QThread(this);
-//    natDetectThread = new NatDetectThread(this);
-//    natDetectThread->moveToThread(natDetectThread);
-////    connect(natDetectThread, &NatDetectThread::startNatDetection, this, &MainWindow::onGetButtonClicked);
-////    connect(this, &MainWindow::onGetButtonClicked, natDetectThread, &NatDetectThread::startNatDetection);
-//    connect(natDetectThread, &NatDetectThread::natDetectionFinished, this, &MainWindow::updateNatDetectionResults);
 }
 
 
@@ -86,7 +82,7 @@ void MainWindow::onGetButtonClicked() {
 }
 
 
-void MainWindow::updateNatDetectionResults(const QString &natType, const QString &localAddress, const QString &publicAddress) {
+void MainWindow::updateNatDetectionResults(const QString &natType, const QString &logMsg) {
     // comboBox与getButton设置为可选
     serverComboBox->setEnabled(true);
     getButton->setEnabled(true);
@@ -94,7 +90,13 @@ void MainWindow::updateNatDetectionResults(const QString &natType, const QString
     // 更新界面上的 NAT 检测结果
     natTypeLineEdit->setText(natType);
     logWidget->clear();
-    logWidget->append(publicAddress);
-//    localEndPointLineEdit->setText(localAddress);
-//    publicEndPointLineEdit->setText(publicAddress);
+    logWidget->append(logMessage);
+    logMessage.clear();
+
+    // 更新本地地址和公网地址
+    localEndPointLineEdit->setText(localEndPoint);
+    publicEndPointLineEdit->setText(publicEndPoint);
+
+    localEndPoint.clear();
+    publicEndPoint.clear();
 }

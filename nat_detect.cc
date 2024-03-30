@@ -1,43 +1,59 @@
 #include "nat_detect.h"
 
-// 存放日志信息
-QString logMessage;
+QString logMessage; // 存放日志信息
+QString localEndPoint = "";
+QString publicEndPoint = "";
 
 static void customLogWriter(int level, const char *buffer, int len){
     Q_UNUSED(level);
     QString logMsg = QString::fromUtf8(buffer, len);
+    if(logMsg.contains("Local address is")){
+        QRegularExpression re("Local address is ([\\d\\.]+):(\\d+)");
+        QRegularExpressionMatch match = re.match(logMsg);
+        if (match.hasMatch()) {
+            localEndPoint = match.captured(1) + ":" + match.captured(2);
+        }
+    }
+
     if(logMsg.contains("CHANGED-ADDRESS: length=8, IPv4 addr")){
-        logMessage.append(logMsg);
-        std::cout << logMessage.toStdString();
+
+        if(publicEndPoint == ""){
+            publicEndPoint = extractPubLicIpAddressAndPort(logMsg);
+        }
+    }
+    logMessage.append(logMsg);
+}
+
+static QString extractPubLicIpAddressAndPort(const QString &input) {
+    QRegularExpression re("MAPPED-ADDRESS: length=\\d+, IPv4 addr=([\\d\\.]+:\\d+)");
+    QRegularExpressionMatch match = re.match(input);
+    if (match.hasMatch()) {
+        return match.captured(1);
+    } else {
+        return QString();
     }
 }
 
 static void my_nat_detect_callback(void *user_data, const pj_stun_nat_detect_result *res) {
     NatDetect *detector = reinterpret_cast<NatDetect*>(user_data);
 
+    // 获取日志信息
     QString logMsg = logMessage;
     if (res->status == PJ_SUCCESS) {
         QString natType = pj_stun_get_nat_name(res->nat_type);
-        QString localAddress; // 获取本地地址
-        QString publicAddress; // 获取公网地址
-
-        std::cout << "logMsg:" << logMsg.toStdString();
 
         // 在主线程中发出信号
         QMetaObject::invokeMethod(detector, "natDetectionFinished",
                                   Qt::QueuedConnection,
                                   Q_ARG(QString, natType),
-                                  Q_ARG(QString, localAddress),
                                   Q_ARG(QString, logMsg));
 
-//        std::cout << "NAT detection success. NAT type is " << pj_stun_get_nat_name(res->nat_type) << std::endl;
     } else {
         // 在主线程中发出信号表明检测失败
         QMetaObject::invokeMethod(detector, "natDetectionFinished",
                                   Qt::QueuedConnection,
                                   Q_ARG(QString, "Detection failed"),
-                                  Q_ARG(QString, ""),
-                                  Q_ARG(QString, ""));
+                                  Q_ARG(QString, logMsg));
     }
 
     detector->stopNatDetection();
@@ -85,10 +101,6 @@ void NatDetect::onNatDetect(const QString& server, int port) {
     pj_str_t stunServer = pj_str(serverStr); // 设置STUN服务器地址
     pj_sockaddr_in server_addr;
 
-    // 分配用户数据
-//    my_user_data *data = (my_user_data *)pj_pool_alloc(pool, sizeof(my_user_data));
-//    data->nat_type = PJ_STUN_NAT_TYPE_UNKNOWN; // 初始值，表示未知NAT类型
-
     // 解析STUN服务器地址
     status = pj_sockaddr_in_init(&server_addr, &stunServer, port); // STUN服务器端口
     if (status != PJ_SUCCESS) {
@@ -121,9 +133,6 @@ void NatDetect::start_event_loop() {
         pj_timer_heap_poll(timer_heap, &timeout);
     }
 
-
-
-//    std::cout << logMessage.toStdString();
 }
 
 void NatDetect::stop_event_loop() {
@@ -140,10 +149,11 @@ void NatDetect::setServerAndPort(const QString &server, int port) {
     this->port = port;
 }
 
-const QString& NatDetect::customLog(int level, const char *buffer, int len) {
+[[maybe_unused]] const QString& NatDetect::customLog(int level, const char *buffer, int len) {
     Q_UNUSED(level);
-    // 将日志信息发送到GUI线程，你可能需要确保这里是线程安全的
-    // 例如，使用信号和槽机制
+    // 将日志信息发送到GUI线程
     QString logMsg = QString::fromUtf8(buffer, len);
     emit logReceived(logMsg);  // 假设这是一个自定义的信号
 }
+
+
