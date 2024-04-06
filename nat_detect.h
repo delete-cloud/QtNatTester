@@ -26,7 +26,7 @@ public:
     void setServerAndPort(const QString &server, int port);
 
 
-    [[maybe_unused]] const QString& customLog(int level, const char *buffer, int len);
+//    [[maybe_unused]] const QString& customLog(int level, const char *buffer, int len);
 
 signals:
     void natDetectionStarted();

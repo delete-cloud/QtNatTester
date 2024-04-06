@@ -7,6 +7,7 @@ QString publicEndPoint = "";
 static void customLogWriter(int level, const char *buffer, int len){
     Q_UNUSED(level);
     QString logMsg = QString::fromUtf8(buffer, len);
+    std::cout << logMsg.toStdString();
     if(logMsg.contains("Local address is")){
         QRegularExpression re("Local address is ([\\d\\.]+):(\\d+)");
         QRegularExpressionMatch match = re.match(logMsg);
@@ -66,6 +67,7 @@ NatDetect::NatDetect(QObject *parent)
     pjlib_util_init();
     pjnath_init();
 
+    pj_log_set_level(5);
     pj_log_set_log_func(customLogWriter);
 
     pj_caching_pool_init(&cp, &pj_pool_factory_default_policy, 0);
@@ -149,11 +151,12 @@ void NatDetect::setServerAndPort(const QString &server, int port) {
     this->port = port;
 }
 
-[[maybe_unused]] const QString& NatDetect::customLog(int level, const char *buffer, int len) {
-    Q_UNUSED(level);
-    // 将日志信息发送到GUI线程
-    QString logMsg = QString::fromUtf8(buffer, len);
-    emit logReceived(logMsg);  // 假设这是一个自定义的信号
-}
+//[[maybe_unused]] const QString& NatDetect::customLog(int level, const char *buffer, int len) {
+//    Q_UNUSED(level);
+//    // 将日志信息发送到GUI线程
+//    QString logMsg = QString::fromUtf8(buffer, len);
+//    emit logReceived(logMsg);  // 假设这是一个自定义的信号
+//    return nullptr;
+//}
 
 

@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     serverComboBox = new QComboBox(this);
             foreach (const QString &server, serverPortMap.keys()) {
             serverComboBox->addItem(server);
-            }
+        }
 
     natTypeLineEdit = new QLineEdit(this);
     natTypeLineEdit->setReadOnly(true);
@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     formLayout->addRow(new QLabel("检测日志:"), logWidget);
 
 
-    getButton = new QPushButton("检测");
+    getButton = new QPushButton("Get");
     connect(getButton, &QPushButton::clicked, this, &MainWindow::onGetButtonClicked);
 
     mainLayout->addLayout(formLayout);
